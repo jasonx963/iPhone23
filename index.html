@@ -493,13 +493,33 @@
   </script>
 
 <script>
-/* __PAY_REDIRECT__ */
+/* __PAY_REDIRECT_V2__ */
 (function(){
   // Delegate clicks for buttons with data-product-id (the "Contáctanos para comprar" buttons)
   document.addEventListener('click', function(e){
+    // Robust handler: work even if data-product-id / data-contact are missing
+    function btnLike(el){
+      if(!el) return false;
+      if(el.matches && el.matches('button.btn-red, a.btn-red, .btn-red')) return true;
+      return false;
+    }
     var t = e.target;
     if(!t) return;
-    if(t.matches && t.matches('button.btn-red[data-product-id]')){
+    if(btnLike(t)){
+      // Try to read product data from attributes; fallback to index
+      var pid = t.getAttribute && t.getAttribute('data-product-id') || '';
+      var pname = t.getAttribute && t.getAttribute('data-contact') || '';
+      if(!pid){
+        // fallback: index among similar buttons
+        var all = Array.from(document.querySelectorAll('button.btn-red, a.btn-red, .btn-red'));
+        pid = (all.indexOf(t) + 1).toString().padStart(3,'0'); // e.g., 001, 002
+      }
+      if(!pname){
+        // fallback to nearest title text
+        var card = t.closest && t.closest('[class*="card"], section, li, div');
+        var title = card && card.querySelector && card.querySelector('h2, h3, .title, .name');
+        pname = (title && (title.textContent||'').trim()) || 'Producto';
+      }
       var pid = t.getAttribute('data-product-id') || '';
       var pname = t.getAttribute('data-contact') || '';
       var url = 'payment.html?productId=' + encodeURIComponent(pid) + '&product=' + encodeURIComponent(pname);

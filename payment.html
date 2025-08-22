@@ -103,12 +103,24 @@
   </div>
 
   <script>
+    // BANK_DEFAULTS: customize here
+    const BANK_DEFAULTS = {
+      bankName: "BBVA México",
+      accountName: "TECH STORE MX SA DE CV",
+      accountNo: "012345678901234567",
+      amount: "Aparece en la página anterior"
+    };
     // 1) Cargar parámetros de la URL
     const params = new URLSearchParams(location.search);
     const product = params.get('product') || '-';
     const productId = params.get('productId') || '-';
 
     document.getElementById('pname').textContent = product;
+    // Apply defaults
+    document.getElementById('bankName').textContent = BANK_DEFAULTS.bankName;
+    document.getElementById('accountName').textContent = BANK_DEFAULTS.accountName;
+    document.getElementById('accountNo').textContent = BANK_DEFAULTS.accountNo;
+    document.getElementById('amount').textContent = BANK_DEFAULTS.amount;
     document.getElementById('pid').textContent = productId;
 
     // 2) Botones Copiar
@@ -130,6 +142,7 @@
     const preview = document.getElementById('preview');
     fileInput.addEventListener('change', () => {
       const f = fileInput.files && fileInput.files[0];
+      if(f && f.size > 8*1024*1024){ document.getElementById('tip').innerHTML = '<span class="warn">El archivo supera 8MB, por favor súbelo más pequeño.</span>'; return; }
       if (!f) { preview.src = ''; return; }
       const reader = new FileReader();
       reader.onload = e => { preview.src = e.target.result; };
@@ -139,6 +152,7 @@
     // 4) Subir al backend (/api/payment-upload)
     function doUpload(){ (async () => {
       const f = fileInput.files && fileInput.files[0];
+      if(f && f.size > 8*1024*1024){ document.getElementById('tip').innerHTML = '<span class="warn">El archivo supera 8MB, por favor súbelo más pequeño.</span>'; return; }
       if (!f) {
         document.getElementById('tip').innerHTML = '<span class="warn">Por favor, selecciona un archivo primero.</span>';
         return;
@@ -162,7 +176,10 @@
           throw new Error(json && json.message || 'Error desconocido');
         }
       } catch (e) {
-        document.getElementById('tip').innerHTML = '<span class="warn">No se pudo enviar. Intenta otra vez o contáctanos por WhatsApp.</span>';
+        let msg = (e && e.message) ? e.message : 'unknown';
+        try { const t = await res.text(); if(t) msg += ' | ' + t.slice(0,160); } catch(_){}
+
+        document.getElementById('tip').innerHTML = '<span class="warn">No se pudo enviar (' + msg + '). Intenta de nuevo o contáctanos por WhatsApp.</span>';
       }
     })(); }
     document.getElementById('btnUpload').addEventListener('click', doUpload);

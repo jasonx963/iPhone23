@@ -1,8 +1,15 @@
 {
-  "name": "iphone-sale",
+  "name": "iphone-site",
   "private": true,
   "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'static site'",
+    "start": "vercel dev"
+  },
   "dependencies": {
-    "@vercel/kv": "^1.0.1"
+    "@vercel/kv": "latest",
+    "busboy": "1.6.0"
   }
 }
