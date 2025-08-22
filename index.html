@@ -503,7 +503,7 @@
       var pid = t.getAttribute('data-product-id') || '';
       var pname = t.getAttribute('data-contact') || '';
       var url = 'payment.html?productId=' + encodeURIComponent(pid) + '&product=' + encodeURIComponent(pname);
-      var w = window.open(url, '_blank'); if(w){ try{ w.opener = null; }catch(e){} }
+      window.location.href = url;
     }
   }, true);
 })();
